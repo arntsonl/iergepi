@@ -15,6 +15,7 @@ public:
 
         angle=0.0;
         lx = 0.0f;
+        ly = 0.0f;
         lz = -1.0f;
         sx = 1.0f;
         sz = 0.0f;
@@ -45,11 +46,33 @@ public:
         gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, image.getSize().x, image.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+        floortexture = 0;
+        image.loadFromFile("resources/floor.jpg");
+        glGenTextures(1, &floortexture);
+        glBindTexture(GL_TEXTURE_2D, floortexture);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, image.getSize().x, image.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        ceilingtexture = 0;
+        image.loadFromFile("resources/ceiling.jpg");
+        glGenTextures(1, &ceilingtexture);
+        glBindTexture(GL_TEXTURE_2D, ceilingtexture);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, image.getSize().x, image.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }
 
     ~GameState()
     {
         // Don't forget to destroy our texture
+        glDeleteTextures(1, &ceilingtexture);
+        glDeleteTextures(1, &floortexture);
         glDeleteTextures(1, &boxtexture);
         glDeleteTextures(1, &billboardtexture);
 
@@ -66,7 +89,7 @@ public:
 	// Draw a cube
 	float size = 2.f;
 
-	glTranslatef(size, size, size);
+	glTranslatef(0.f, size, 0.f);
 
 	glBegin(GL_QUADS);
             glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
@@ -144,16 +167,14 @@ public:
         float angleCosine = dot(lookAt, objNormal);
 
         if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
-          glRotatef(acos(angleCosine)*180/3.14159265f, upAux.x, upAux.y, upAux.z);
+          glRotatef(acos(angleCosine)*180.f/3.14159265f, upAux.x, upAux.y, upAux.z);
 
         // Bind our texture
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, billboardtexture);
         glColor4f(1.f, 1.f, 1.f, 1.f);
 
-
-
-        glTranslatef(size, size, size);
+        glTranslatef(0.f, size, 0.f);
 
         glBegin(GL_QUADS);
                 glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
@@ -216,9 +237,11 @@ public:
     {
 		// update deltaAngle
 		deltaAngle = m_mouseVel.x * 0.005f;
+        deltaLook = m_mouseVel.y * 0.005f;
 
 		// update camera's direction
 		lx = sin(angle + deltaAngle);
+		ly = ly - deltaLook;
 		lz = -cos(angle + deltaAngle);
 
 		sx = sin(angle + deltaStrafe);
@@ -246,18 +269,30 @@ public:
         //glTranslatef(x, y, -100.f);
 
         // Set the camera
-        gluLookAt(	x, 1.0f, z,
-                x+lx, 1.0f,  z+lz,
-                0.0f, 1.0f,  0.0f);
+        gluLookAt(	x, 2.0f, z,
+                x+lx, 2.0f,  z+lz,
+                0.0f, 2.0f,  0.0f);
 
         // Draw ground
-        glDisable(GL_TEXTURE_2D);
-        glColor3f(0.5f, 0.5f, 0.5f);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, floortexture);
+        glColor4f(1.f, 1.f, 1.f, 1.f);
         glBegin(GL_QUADS);
-            glVertex3f(-100.0f, 0.0f, -100.0f);
-            glVertex3f(-100.0f, 0.0f,  100.0f);
-            glVertex3f( 100.0f, 0.0f,  100.0f);
-            glVertex3f( 100.0f, 0.0f, -100.0f);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(-100.0f, 0.0f, -100.0f);
+            glTexCoord2f(0.0f, 100.0f); glVertex3f(-100.0f, 0.0f,  100.0f);
+            glTexCoord2f(100.0f, 100.0f); glVertex3f( 100.0f, 0.0f,  100.0f);
+            glTexCoord2f(100.0f, 0.0f); glVertex3f( 100.0f, 0.0f, -100.0f);
+        glEnd();
+
+        // Draw the ceiling
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, ceilingtexture);
+        glColor4f(1.f, 1.f, 1.f, 1.f);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 0.0f); glVertex3f(-100.0f, 4.0f, -100.0f);
+            glTexCoord2f(0.0f, 100.0f); glVertex3f(-100.0f, 4.0f,  100.0f);
+            glTexCoord2f(100.0f, 100.0f); glVertex3f( 100.0f, 4.0f,  100.0f);
+            glTexCoord2f(100.0f, 0.0f); glVertex3f( 100.0f, 4.0f, -100.0f);
         glEnd();
 
         // Draw 36 SnowMen
@@ -302,13 +337,15 @@ private:
     // angle of rotation for the camera direction
     float angle;
     // actual vector representing the camera's direction
-    float lx,lz,sx,sz;
+    float lx,ly,lz,sx,sz;
     // XZ position of the camera
     float x,z;
 
     float deltaAngle;
     float deltaMove;
     float deltaStrafe;
+
+    float deltaLook;
 
     float fraction;
 
@@ -317,4 +354,6 @@ private:
 
     GLuint boxtexture;
     GLuint billboardtexture;
+    GLuint floortexture;
+    GLuint ceilingtexture;
 };
