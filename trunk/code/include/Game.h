@@ -8,11 +8,13 @@
 //#include "MenuState.h"
 #include "GameState.h"
 #include "Global.h"
+#include "Player.h"
 
 class State;
 class IntroState;
 //class MenuState;
 class GameState;
+class Player;
 
 class Game
 {

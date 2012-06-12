@@ -8,7 +8,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="bin\Debug\Project" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="bin\Debug" />
+				<Option working_dir="..\..\iergepi" />
 				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -18,6 +18,7 @@
 					<Add option="-DDEBUG" />
 					<Add directory="C:\SFML-2.0-rc\include" />
 					<Add directory="include" />
+					<Add directory="M:\Libraries\SFML-2.0-rc-windows-32-gcc4-sjlj\SFML-2.0-rc\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc -lglu32" />
@@ -27,6 +28,7 @@
 					<Add library="sfml-network-s-d" />
 					<Add library="sfml-system-s-d" />
 					<Add directory="C:\SFML-2.0-rc\lib" />
+					<Add directory="M:\Libraries\SFML-2.0-rc-windows-32-gcc4-sjlj\SFML-2.0-rc\lib" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -58,12 +60,18 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="include\Entity.h" />
+		<Unit filename="include\EntityManager.h" />
 		<Unit filename="include\Game.h" />
 		<Unit filename="include\GameState.h" />
 		<Unit filename="include\Global.h" />
 		<Unit filename="include\IntroState.h" />
 		<Unit filename="include\State.h" />
+		<Unit filename="include\Utilities.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="include\Utilities.h" />
 		<Unit filename="src\Entity.cpp" />
+		<Unit filename="src\EntityManager.cpp" />
 		<Unit filename="src\Game.cpp" />
 		<Unit filename="src\GameState.cpp" />
 		<Unit filename="src\IntroState.cpp" />

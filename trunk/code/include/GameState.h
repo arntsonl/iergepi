@@ -4,356 +4,259 @@
 #include <SFML/OpenGL.hpp>
 #include <cmath>
 #include <iostream>
+#include "Utilities.h"
+#include "EntityManager.h"
+#include "Player.h"
+
 
 class GameState : public State
 {
 public:
-    GameState()
-    {
-        m_bgTex.loadFromFile("resources/background.jpg");
-        m_bgSpr = new sf::Sprite(m_bgTex);
+    GameState();
+    //{
+    //    testPlayer = new Player("TestPlayer", sf::Vector2f(0,0),"resources/Charsheet.png",  false);
+    //}
 
-        angle=0.0;
-        lx = 0.0f;
-        ly = 0.0f;
-        lz = -1.0f;
-        sx = 1.0f;
-        sz = 0.0f;
-        x = 0.0f;
-        z = 5.0f;
-        fraction = 0.1f;
+    ~GameState();
 
-        deltaAngle = 0.0f;
-        deltaMove = 0;
-        deltaStrafe = 0;
-
-        // Load an OpenGL texture.
-        // We could directly use a sf::Texture as an OpenGL texture (with its Bind() member function),
-        // but here we want more control on it (generate mipmaps, ...) so we create a new one from an image
-        boxtexture = 0;
-        sf::Image image;
-        image.loadFromFile("resources/texture.jpg");
-        glGenTextures(1, &boxtexture);
-        glBindTexture(GL_TEXTURE_2D, boxtexture);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, image.getSize().x, image.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-        billboardtexture = 0;
-        image.loadFromFile("resources/billboard.jpg");
-        glGenTextures(1, &billboardtexture);
-        glBindTexture(GL_TEXTURE_2D, billboardtexture);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, image.getSize().x, image.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-        floortexture = 0;
-        image.loadFromFile("resources/floor.jpg");
-        glGenTextures(1, &floortexture);
-        glBindTexture(GL_TEXTURE_2D, floortexture);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, image.getSize().x, image.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        ceilingtexture = 0;
-        image.loadFromFile("resources/ceiling.jpg");
-        glGenTextures(1, &ceilingtexture);
-        glBindTexture(GL_TEXTURE_2D, ceilingtexture);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, image.getSize().x, image.getSize().y, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
-
-    ~GameState()
-    {
-        // Don't forget to destroy our texture
-        glDeleteTextures(1, &ceilingtexture);
-        glDeleteTextures(1, &floortexture);
-        glDeleteTextures(1, &boxtexture);
-        glDeleteTextures(1, &billboardtexture);
-
-        delete m_bgSpr;
-    }
-
-    void drawSnowMan() {
-
-    // Bind our texture
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, boxtexture);
-    glColor4f(1.f, 1.f, 1.f, 1.f);
-
-	// Draw a cube
-	float size = 2.f;
-
-	glTranslatef(0.f, size, 0.f);
-
-	glBegin(GL_QUADS);
-            glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
-            glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
-            glTexCoord2f(1, 1); glVertex3f( size,  size, -size);
-            glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
-
-            glTexCoord2f(0, 0); glVertex3f(-size, -size, size);
-            glTexCoord2f(0, 1); glVertex3f(-size,  size, size);
-            glTexCoord2f(1, 1); glVertex3f( size,  size, size);
-            glTexCoord2f(1, 0); glVertex3f( size, -size, size);
-
-            glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
-            glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
-            glTexCoord2f(1, 1); glVertex3f(-size,  size,  size);
-            glTexCoord2f(1, 0); glVertex3f(-size, -size,  size);
-
-            glTexCoord2f(0, 0); glVertex3f(size, -size, -size);
-            glTexCoord2f(0, 1); glVertex3f(size,  size, -size);
-            glTexCoord2f(1, 1); glVertex3f(size,  size,  size);
-            glTexCoord2f(1, 0); glVertex3f(size, -size,  size);
-
-            glTexCoord2f(0, 1); glVertex3f(-size, -size,  size);
-            glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
-            glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
-            glTexCoord2f(1, 1); glVertex3f( size, -size,  size);
-
-            glTexCoord2f(0, 1); glVertex3f(-size, size,  size);
-            glTexCoord2f(0, 0); glVertex3f(-size, size, -size);
-            glTexCoord2f(1, 0); glVertex3f( size, size, -size);
-            glTexCoord2f(1, 1); glVertex3f( size, size,  size);
-	glEnd();
-    }
+//    void drawSnowMan() {
+//
+//    // Bind our texture
+//    glEnable(GL_TEXTURE_2D);
+//    glBindTexture(GL_TEXTURE_2D, boxtexture);
+//    glColor4f(1.f, 1.f, 1.f, 1.f);
+//
+//	// Draw a cube
+//	float size = 2.f;
+//
+//	glTranslatef(size, size, size);
+//
+//	glBegin(GL_QUADS);
+//            glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+//            glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
+//            glTexCoord2f(1, 1); glVertex3f( size,  size, -size);
+//            glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
+//
+//            glTexCoord2f(0, 0); glVertex3f(-size, -size, size);
+//            glTexCoord2f(0, 1); glVertex3f(-size,  size, size);
+//            glTexCoord2f(1, 1); glVertex3f( size,  size, size);
+//            glTexCoord2f(1, 0); glVertex3f( size, -size, size);
+//
+//            glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+//            glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
+//            glTexCoord2f(1, 1); glVertex3f(-size,  size,  size);
+//            glTexCoord2f(1, 0); glVertex3f(-size, -size,  size);
+//
+//            glTexCoord2f(0, 0); glVertex3f(size, -size, -size);
+//            glTexCoord2f(0, 1); glVertex3f(size,  size, -size);
+//            glTexCoord2f(1, 1); glVertex3f(size,  size,  size);
+//            glTexCoord2f(1, 0); glVertex3f(size, -size,  size);
+//
+//            glTexCoord2f(0, 1); glVertex3f(-size, -size,  size);
+//            glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+//            glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
+//            glTexCoord2f(1, 1); glVertex3f( size, -size,  size);
+//
+//            glTexCoord2f(0, 1); glVertex3f(-size, size,  size);
+//            glTexCoord2f(0, 0); glVertex3f(-size, size, -size);
+//            glTexCoord2f(1, 0); glVertex3f( size, size, -size);
+//            glTexCoord2f(1, 1); glVertex3f( size, size,  size);
+//	glEnd();
+//    }
 
 
-    float getMagnitude(float x, float y, float z)
-    {
-        return sqrt(x*x+y*y+z*z);
-    }
-
-    sf::Vector3f normalize(sf::Vector3f vec)
-    {
-        float length = getMagnitude(vec.x,vec.y,vec.z);
-        sf::Vector3f temp;
-        temp.x = vec.x/length;
-        temp.y = vec.y/length;
-        temp.z = vec.z/length;
-        return temp;
-    }
-
-    sf::Vector3f cross(sf::Vector3f v1, sf::Vector3f v2)
-    {
-        sf::Vector3f temp;
-        temp.x = v1.y*v2.z - v1.z*v2.y;
-        temp.y = v1.z*v2.x - v1.x*v2.z;
-        temp.z = v1.x*v2.y - v1.y*v2.x;
-        return temp;
-    }
-
-    float dot(sf::Vector3f v1, sf::Vector3f v2)
-    {
-        return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
-    }
-
-    void drawBillboard(float objX, float objZ) {
-        // Draw a cube
-        float size = 2.f;
-
-        sf::Vector3f objToCamProj(x - objX, 0.f, z-objZ);
-        sf::Vector3f lookAt(0,0,1);
-
-        sf::Vector3f objNormal = normalize(objToCamProj);
-        sf::Vector3f upAux = cross(lookAt, objNormal);
-
-        float angleCosine = dot(lookAt, objNormal);
-
-        if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
-          glRotatef(acos(angleCosine)*180.f/3.14159265f, upAux.x, upAux.y, upAux.z);
-
-        // Bind our texture
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, billboardtexture);
-        glColor4f(1.f, 1.f, 1.f, 1.f);
-
-        glTranslatef(0.f, size, 0.f);
-
-        glBegin(GL_QUADS);
-                glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
-                glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
-                glTexCoord2f(1, 1); glVertex3f( size,  size, -size);
-                glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
-        glEnd();
-    }
-
-    void computePos() {
-
-	    x += deltaMove * lx * 0.1f;
-	    z += deltaMove * lz * 0.1f;
-    }
-
-    void computeDir() {
-
-	    angle += deltaAngle;
-	    lx = sin(angle);
-        lz = -cos(angle);
-    }
+//    void drawBillboard(float objX, float objZ) {
+//        // Draw a cube
+//        float size = 2.f;
+//
+//        sf::Vector3f objToCamProj(x - objX, 0.f, z-objZ);
+//        sf::Vector3f lookAt(0,0,1);
+//        sf::Vector3f objNormal = Utilities::normalize(objToCamProj);
+//        sf::Vector3f upAux = Utilities::cross(lookAt, objNormal);
+//
+//        float angleCosine = Utilities::dot(lookAt, objNormal);
+//
+//        if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
+//          glRotatef(acos(angleCosine)*180/3.14159265f, upAux.x, upAux.y, upAux.z);
+//
+//        // Bind our texture
+//        glEnable(GL_TEXTURE_2D);
+//        glBindTexture(GL_TEXTURE_2D, billboardtexture);
+//        glColor4f(1.f, 1.f, 1.f, 1.f);
+//
+//
+//
+//        glTranslatef(size, size, size);
+//
+//        glBegin(GL_QUADS);
+//                glTexCoord2f(0, 0); glVertex3f(-size, -size, -size);
+//                glTexCoord2f(0, 1); glVertex3f(-size,  size, -size);
+//                glTexCoord2f(1, 1); glVertex3f( size,  size, -size);
+//                glTexCoord2f(1, 0); glVertex3f( size, -size, -size);
+//        glEnd();
+//    }
 
     // All corresponding states can use these
-    void Input(uint press, uint held, uint mpress, uint mheld, sf::Vector2i mpos)
-    {
-        if ( press & KEY_L || held & KEY_L)
-        {
-            deltaStrafe = 0.5f;
-        }
-		else if ( press & KEY_R || held & KEY_R)
-        {
-			deltaStrafe = -0.5f;
-        }
-        else
-        {
-            deltaStrafe = 0.0f;
-        }
-		if ( press & KEY_U || held & KEY_U)
-        {
-			 deltaMove = 0.5f;
-        }
-		else if ( press & KEY_D || held & KEY_D)
-        {
-			 deltaMove = -0.5f;
-        }
-        else
-        {
-            deltaMove = 0.0f;
-        }
+    void Input(uint press, uint held, uint mpress, uint mheld, sf::Vector2i mpos);
+//    {
+//        if ( press & KEY_L || held & KEY_L)
+//        {
+//            deltaStrafe = 0.5f;
+//        }
+//		else if ( press & KEY_R || held & KEY_R)
+//        {
+//			deltaStrafe = -0.5f;
+//        }
+//        else
+//        {
+//            deltaStrafe = 0.0f;
+//        }
+//		if ( press & KEY_U || held & KEY_U)
+//        {
+//			 deltaMove = 0.5f;
+//        }
+//		else if ( press & KEY_D || held & KEY_D)
+//        {
+//			 deltaMove = -0.5f;
+//        }
+//        else
+//        {
+//            deltaMove = 0.0f;
+//        }
+//
+//        m_mouseVel.x = mpos.x - m_mousePos.x;
+//        m_mouseVel.y = mpos.y - m_mousePos.y;
+//
+//        m_mousePos = mpos;
+//
+//        // Need to recenter the mouse
+//    }
 
-        m_mouseVel.x = mpos.x - m_mousePos.x;
-        m_mouseVel.y = mpos.y - m_mousePos.y;
+    uint Update(sf::Time elapsed);
+//    {
+//		// update deltaAngle
+//		deltaAngle = m_mouseVel.x * 0.005f;
+//
+//		// update camera's direction
+//		lx = sin(angle + deltaAngle);
+//		lz = -cos(angle + deltaAngle);
+//
+//		sx = sin(angle + deltaStrafe);
+//		sz = -cos(angle + deltaStrafe);
+//
+//        if (deltaMove || deltaStrafe)
+//            computePos();
+//        if (deltaAngle)
+//            computeDir();
+//
+//
+//        testPlayer->Update(elapsed);
+//
+//        return STATE_IDLE;
+//    } // do some updating
 
-        m_mousePos = mpos;
+    void Render(sf::RenderWindow * window);
+//    {
+//        // Draw a quick background
+//        window->pushGLStates();
+//        window->draw(*m_bgSpr);
+//        window->popGLStates();
+//
+//        // Reset transformations
+//        glMatrixMode(GL_MODELVIEW);
+//        glLoadIdentity();
+//
+//        //glTranslatef(x, y, -100.f);
+//
+//        // Set the camera
+//        gluLookAt(	x, 1.0f, z,
+//                x+lx, 1.0f,  z+lz,
+//                0.0f, 1.0f,  0.0f);
+//
+//        // Draw ground
+//        glDisable(GL_TEXTURE_2D);
+//        glColor3f(0.5f, 0.5f, 0.5f);
+//        glBegin(GL_QUADS);
+//            glVertex3f(-100.0f, 0.0f, -100.0f);
+//            glVertex3f(-100.0f, 0.0f,  100.0f);
+//            glVertex3f( 100.0f, 0.0f,  100.0f);
+//            glVertex3f( 100.0f, 0.0f, -100.0f);
+//        glEnd();
+//
+//        // Draw 36 SnowMen
+//        for(int i = -3; i < 3; i++)
+//            for(int j=-3; j < 3; j++) {
+//                glPushMatrix();
+//                glTranslatef(i*10.0,0,j * 10.0);
+//                drawSnowMan();
+//                glPopMatrix();
+//            }
+//
+//        // Draw 36 billboards
+//        //for(int i = -3; i < 3; i++)
+//        //    for(int j=-3; j < 3; j++) {
+//        //        glPushMatrix();
+//        //        glTranslatef(i*10.0 + 5.0, 0, j * 10.0 + 5.0);
+//        //        drawBillboard(i*10.0 + 5.0,j * 10.0 + 5.0);
+//        //       glPopMatrix();
+//        //    }
+//
+//        //Draw testplayer
+//        testPlayer->Render();
+//
+//
+//        // Draw some text on top of our OpenGL object
+//        window->pushGLStates();
+//        sf::Text text("in game state");
+//        text.setColor(sf::Color(255, 255, 255, 200));
+//        text.setPosition(250.f, 450.f);
+//        window->draw(text);
+//        window->popGLStates();
+//    } // render things onto the screen
 
-        // Need to recenter the mouse
-    }
-
-    uint Update(sf::Time)
-    {
-		// update deltaAngle
-		deltaAngle = m_mouseVel.x * 0.005f;
-        deltaLook = m_mouseVel.y * 0.005f;
-
-		// update camera's direction
-		lx = sin(angle + deltaAngle);
-		ly = ly - deltaLook;
-		lz = -cos(angle + deltaAngle);
-
-		sx = sin(angle + deltaStrafe);
-		sz = -cos(angle + deltaStrafe);
-
-        if (deltaMove || deltaStrafe)
-            computePos();
-        if (deltaAngle)
-            computeDir();
-
-        return STATE_IDLE;
-    } // do some updating
-
-    void Render(sf::RenderWindow * window)
-    {
-        // Draw a quick background
-        window->pushGLStates();
-        window->draw(*m_bgSpr);
-        window->popGLStates();
-
-        // Reset transformations
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-
-        //glTranslatef(x, y, -100.f);
-
-        // Set the camera
-        gluLookAt(	x, 2.0f, z,
-                x+lx, 2.0f,  z+lz,
-                0.0f, 2.0f,  0.0f);
-
-        // Draw ground
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, floortexture);
-        glColor4f(1.f, 1.f, 1.f, 1.f);
-        glBegin(GL_QUADS);
-            glTexCoord2f(0.0f, 0.0f); glVertex3f(-100.0f, 0.0f, -100.0f);
-            glTexCoord2f(0.0f, 100.0f); glVertex3f(-100.0f, 0.0f,  100.0f);
-            glTexCoord2f(100.0f, 100.0f); glVertex3f( 100.0f, 0.0f,  100.0f);
-            glTexCoord2f(100.0f, 0.0f); glVertex3f( 100.0f, 0.0f, -100.0f);
-        glEnd();
-
-        // Draw the ceiling
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, ceilingtexture);
-        glColor4f(1.f, 1.f, 1.f, 1.f);
-        glBegin(GL_QUADS);
-            glTexCoord2f(0.0f, 0.0f); glVertex3f(-100.0f, 4.0f, -100.0f);
-            glTexCoord2f(0.0f, 100.0f); glVertex3f(-100.0f, 4.0f,  100.0f);
-            glTexCoord2f(100.0f, 100.0f); glVertex3f( 100.0f, 4.0f,  100.0f);
-            glTexCoord2f(100.0f, 0.0f); glVertex3f( 100.0f, 4.0f, -100.0f);
-        glEnd();
-
-        // Draw 36 SnowMen
-        for(int i = -3; i < 3; i++)
-            for(int j=-3; j < 3; j++) {
-                glPushMatrix();
-                glTranslatef(i*10.0,0,j * 10.0);
-                drawSnowMan();
-                glPopMatrix();
-            }
-
-        // Draw 36 billboards
-        for(int i = -3; i < 3; i++)
-            for(int j=-3; j < 3; j++) {
-                glPushMatrix();
-                glTranslatef(i*10.0 + 5.0, 0, j * 10.0 + 5.0);
-                drawBillboard(i*10.0 + 5.0,j * 10.0 + 5.0);
-                glPopMatrix();
-            }
-
-        // Draw some text on top of our OpenGL object
-        window->pushGLStates();
-        sf::Text text("in game state");
-        text.setColor(sf::Color(255, 255, 255, 200));
-        text.setPosition(250.f, 450.f);
-        window->draw(text);
-        window->popGLStates();
-    } // render things onto the screen
-
-    void Reset(sf::Vector2i mpos)
-    {
-        m_mousePos = mpos;
-    } // this should happen at the beginning of a state change
+    void Reset(sf::Vector2i mpos);
+    //{
+    //    m_mousePos = mpos;
+    //} // this should happen at the beginning of a state change
 
 private:
-    sf::Texture billboard;
-    sf::Sprite testSprite;
+    //sf::Texture billboard;
+    //sf::Sprite testSprite;
 
-    sf::Texture m_bgTex;
-    sf::Sprite * m_bgSpr;
+    //sf::Texture m_bgTex;
+    //sf::Sprite * m_bgSpr;
+    EntityManager* entManager;
+    Player* clientPlayer;
+
+    Camera* activeCamera;
 
     // angle of rotation for the camera direction
-    float angle;
+    //float angle;
     // actual vector representing the camera's direction
-    float lx,ly,lz,sx,sz;
+    //float lx,lz,sx,sz;
     // XZ position of the camera
-    float x,z;
+    //float x,z;if ( press & KEY_L || held & KEY_L)
+//        {
+//            deltaStrafe = 0.5f;
+//        }
+//		else if ( press & KEY_R || held & KEY_R)
+//        {
+//			deltaStrafe = -0.5f;
+//        }
+//        else
+//        {
+//            deltaStrafe = 0.0f;
+//        }
 
-    float deltaAngle;
-    float deltaMove;
-    float deltaStrafe;
+    //float deltaAngle;
+    //float deltaMove;
+    //float deltaStrafe;
 
-    float deltaLook;
+    //float fraction;
 
-    float fraction;
+   // sf::Vector2i m_mousePos;
+   // sf::Vector2i m_mouseVel;
 
-    sf::Vector2i m_mousePos;
-    sf::Vector2i m_mouseVel;
-
-    GLuint boxtexture;
-    GLuint billboardtexture;
-    GLuint floortexture;
-    GLuint ceilingtexture;
+   // GLuint boxtexture;
+   // GLuint billboardtexture;
 };

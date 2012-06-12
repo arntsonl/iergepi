@@ -4,7 +4,7 @@ Game::Game() :
 	m_quit(false)
 {
 	// Create the main window
-	window = new sf::RenderWindow(sf::VideoMode(800, 600), "Dethsn4ke", sf::Style::Default, sf::ContextSettings(32));
+	window = new sf::RenderWindow(sf::VideoMode(800, 600), "Dethsn4ke", sf::Style::Default, sf::ContextSettings(24,8,16));
     window->setVerticalSyncEnabled(true);
     window->setKeyRepeatEnabled(false);
 }
@@ -28,12 +28,16 @@ void Game::Init()
     // Enable Z-buffer read and write
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LEQUAL);
     glClearDepth(1.f);
+
+    glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Setup a perspective projection
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(90.f, 1.f, 1.f, 500.f);
+    gluPerspective(90.f, window->getSize().x/window->getSize().y, 0.1f, 500.f);
 }
 
 void Game::Run()
@@ -174,6 +178,11 @@ void Game::Render()
 	// Clear the depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+
 
     m_state->Render(window);
 
@@ -181,6 +190,7 @@ void Game::Render()
 	// We get the position of the mouse cursor, so that we can move the box accordingly
 	float x =  sf::Mouse::getPosition(*window).x * 200.f / window->getSize().x - 100.f;
 	float y = -sf::Mouse::getPosition(*window).y * 200.f / window->getSize().y + 100.f;
+
 
 	// Apply some transformations
 //	glMatrixMode(GL_MODELVIEW);
