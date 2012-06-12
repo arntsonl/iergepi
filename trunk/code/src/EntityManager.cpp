@@ -42,9 +42,7 @@ void EntityManager::AddPlayer(string name, Entity* player)
     players.insert(pair<std::string, Entity*>(name, player));
 
 #ifdef DEBUG
-    cout<<"Added Player name: "<<name
-    <<" id: "<<player->getID()
-    <<" position: "<<player->getPosition().x<<" "<<player->getPosition().y<<" "<<player->getPosition().z<<"\n";
+    cout<<"Added Player name: "<<name<<"\n";
     cout<<"Current Players: ";
     for(vector<string>::iterator iter = playerNames.begin(); iter != playerNames.end(); iter++){
         cout<<players[*iter]->getID()<<" ";
