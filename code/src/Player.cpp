@@ -78,11 +78,11 @@ void Player::Render(Camera* activeCamera)
     if(!isClient)
     {
         //Billboarding Vector Calculations (still fucked -RL)
-        //sf::Vector3f lookat = activeCamera->position - position;
-        //lookat.y = 0;
-        //lookat = Utilities::normalize(lookat);
-        //sf::Vector3f right = Utilities::cross(sf::Vector3f(0,1,0), lookat);
-        //float lookatAngle = Utilities::dot(lookat, sf::Vector3f(0,0,1));
+        sf::Vector3f lookat = activeCamera->position - position;
+        lookat.y = 0;
+        lookat = Utilities::normalize(lookat);
+        sf::Vector3f right = Utilities::cross(sf::Vector3f(0,1,0), lookat);
+        float lookatAngle = Utilities::dot(lookat, sf::Vector3f(0,0,-1));
 
         //Texture Render Target
         // This stuff breaks rendering in weird ways. Really buggy. Have to manually activate targets for some reason
@@ -102,18 +102,18 @@ void Player::Render(Camera* activeCamera)
             //glLoadIdentity();
 
             glTranslatef(position.x, 0, position.z);
-             //           if ((lookatAngle < 0.99990) && (lookatAngle > -0.9999))
-             //       glRotatef(acos(lookatAngle)*180/3.14159265f,0,1,0);
+            if ((lookatAngle < 0.99990) && (lookatAngle > -0.9999))
+                glRotatef(acos(lookatAngle)*180/3.14159265f,0,1,0);
 
             float size = 0.5f;
             glEnable(GL_TEXTURE_2D);
             renderTexture.getTexture().bind(); //Binding RenderTarget
             glColor4f(1.f, 1.f, 1.f, 1.f);
             glBegin(GL_QUADS);
-                    glTexCoord2f(0, 1); glVertex3f(-size, -size, -size);
-                    glTexCoord2f(0, 0); glVertex3f(-size,  size, -size);
-                    glTexCoord2f(1, 0); glVertex3f( size,  size, -size);
-                    glTexCoord2f(1, 1); glVertex3f( size, -size, -size);
+                    glTexCoord2f(0, 1); glVertex3f(-size, -size, 0);
+                    glTexCoord2f(0, 0); glVertex3f(-size,  size, 0);
+                    glTexCoord2f(1, 0); glVertex3f( size,  size, 0);
+                    glTexCoord2f(1, 1); glVertex3f( size, -size, 0);
             glEnd();
 
         glPopMatrix();

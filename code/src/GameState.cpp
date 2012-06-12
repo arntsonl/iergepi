@@ -1,4 +1,5 @@
 #include "GameState.h"
+#include <cstdio>
 
 
 GameState::GameState()
@@ -10,8 +11,11 @@ GameState::GameState()
     entManager->AddPlayer("TestOpponent", new Player("TestOpponent", sf::Vector2f(0,0),"resources/Charsheet.png",  false));
 
     //Filling up the space with random opponent entities
+    char tempName[64];
+
     for(int i = 0; i < 40; i++){
-        entManager->AddPlayer("TestOpponent"+i, new Player("TestOpponent"+i, sf::Vector2f(rand()%20-10,rand()%20-10),"resources/Charsheet.png",  false));
+        sprintf(tempName, "Player-%d",rand());
+        entManager->AddPlayer(tempName, new Player(tempName, sf::Vector2f(rand()%20-10,rand()%20-10),"resources/Charsheet.png",  false));
     }
 
 
@@ -59,8 +63,8 @@ uint GameState::Update(sf::Time elapsed)
 void GameState::Render(sf::RenderWindow * window)
 {
     activeCamera->activeWindow = window;
-
-    glPolygonMode(GL_FRONT, GL_FILL);
+    window->setActive();
+    //glPolygonMode(GL_FRONT, GL_FILL);
 
     //Setup FPS Drawing | Why do I need to do this again?  Gotta walk down the pipeline- RL
     glMatrixMode(GL_PROJECTION);
@@ -99,7 +103,6 @@ void GameState::Render(sf::RenderWindow * window)
             glVertex3f( 50.0f, -1.0f,  50.0f);
             glVertex3f( 50.0f, -1.0f, -50.0f);
         glEnd();
-        glTranslatef(0,0,0);
     //window->popGLStates();
 
     //DRAW ENTITIES

@@ -26,13 +26,17 @@ void Game::Init()
     keysDown = 0;
 
     // Enable Z-buffer read and write
+    glClearDepth(1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
-    glClearDepth(1.f);
+
 
     glEnable (GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glAlphaFunc(GL_GREATER, 0.5);
+	glEnable(GL_ALPHA_TEST);
 
     // Setup a perspective projection
     glMatrixMode(GL_PROJECTION);
@@ -178,8 +182,18 @@ void Game::Render()
 	// Clear the depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Enable Z-buffer read and write
+    glClearDepth(1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LEQUAL);
+
+
     glEnable (GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glAlphaFunc(GL_GREATER, 0.5);
+	glEnable(GL_ALPHA_TEST);
 
 
 
