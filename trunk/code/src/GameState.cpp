@@ -8,15 +8,17 @@ GameState::GameState()
 
     //Test Entities
     entManager->AddPlayer("TestPlayer", new Player("TestPlayer", sf::Vector2f(0,0),"resources/Charsheet.png",  true));
-    entManager->AddPlayer("TestOpponent", new Player("TestOpponent", sf::Vector2f(0,0),"resources/Charsheet.png",  false));
-
+    entManager->AddPlayer("Test1", new Player("Test1", sf::Vector2f(4,4),"resources/Charsheet.png",  false));
+    entManager->AddPlayer("Test2", new Player("Test2", sf::Vector2f(4,-4),"resources/Charsheet.png",  false));
+    entManager->AddPlayer("Test3", new Player("Test3", sf::Vector2f(-4,4),"resources/Charsheet.png",  false));
+    entManager->AddPlayer("Test4", new Player("Test4", sf::Vector2f(-4,-4),"resources/Charsheet.png",  false));
     //Filling up the space with random opponent entities
-    char tempName[64];
+    //char tempName[64];
 
-    for(int i = 0; i < 40; i++){
-        sprintf(tempName, "Player-%d",rand());
-        entManager->AddPlayer(tempName, new Player(tempName, sf::Vector2f(rand()%20-10,rand()%20-10),"resources/Charsheet.png",  false));
-    }
+    //for(int i = 0; i < 40; i++){
+    //    sprintf(tempName, "Player-%d",rand());
+    //    entManager->AddPlayer(tempName, new Player(tempName, sf::Vector2f(rand()%20-10,rand()%20-10),"resources/Charsheet.png",  false));
+    //}
 
 
     clientPlayer = ((Player*)entManager->GetPlayer("TestPlayer"));
@@ -64,7 +66,7 @@ void GameState::Render(sf::RenderWindow * window)
 {
     activeCamera->activeWindow = window;
     window->setActive();
-    //glPolygonMode(GL_FRONT, GL_FILL);
+    //glPolygonMode(GL_FRONT, GL_LINE);
 
     //Setup FPS Drawing | Why do I need to do this again?  Gotta walk down the pipeline- RL
     glMatrixMode(GL_PROJECTION);
@@ -114,7 +116,7 @@ void GameState::Render(sf::RenderWindow * window)
     window->pushGLStates();
 
         //Active Opponent Texture
-        Player* temp = (Player*)entManager->GetPlayer("TestOpponent");
+        Player* temp = (Player*)entManager->GetPlayer("Test1");
         window->draw(sf::Sprite(temp->renderTexture.getTexture()));
 
         sf::Text text("in game state");

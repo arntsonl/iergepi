@@ -59,22 +59,24 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="include\Camera.h" />
 		<Unit filename="include\Entity.h" />
 		<Unit filename="include\EntityManager.h" />
 		<Unit filename="include\Game.h" />
 		<Unit filename="include\GameState.h" />
 		<Unit filename="include\Global.h" />
 		<Unit filename="include\IntroState.h" />
+		<Unit filename="include\Networker.h" />
+		<Unit filename="include\Player.h" />
 		<Unit filename="include\State.h" />
-		<Unit filename="include\Utilities.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="include\Utilities.h" />
 		<Unit filename="src\Entity.cpp" />
 		<Unit filename="src\EntityManager.cpp" />
 		<Unit filename="src\Game.cpp" />
 		<Unit filename="src\GameState.cpp" />
 		<Unit filename="src\IntroState.cpp" />
+		<Unit filename="src\Networker.cpp" />
+		<Unit filename="src\Player.cpp" />
 		<Unit filename="src\main.cpp" />
 		<Extensions>
 			<code_completion />

@@ -35,4 +35,14 @@ public:
     {
         return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
     }
+
+    static float billboardAngle(sf::Vector2f v1, sf::Vector2f v2)
+    {
+        return atan2(v1.x - v2.x,v1.y - -v2.y)*57.2957795;
+    }
+
+    static float billboardAngle(sf::Vector3f v1, sf::Vector3f v2)
+    {
+        return billboardAngle(sf::Vector2f(v1.x,v1.z), sf::Vector2f(v2.x,v2.z));
+    }
 };
