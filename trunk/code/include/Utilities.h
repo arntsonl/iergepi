@@ -12,13 +12,22 @@ public:
         return sqrt(x*x+y*y+z*z);
     }
 
-    static sf::Vector3f normalize(sf::Vector3f vec)
+    static sf::Vector3f normalize(sf::Vector3f vec , float magnitude=1.0f)
     {
         float length = getMagnitude(vec.x,vec.y,vec.z);
         sf::Vector3f temp;
-        temp.x = vec.x/length;
-        temp.y = vec.y/length;
-        temp.z = vec.z/length;
+        temp.x = vec.x/length*magnitude;
+        temp.y = vec.y/length*magnitude;
+        temp.z = vec.z/length*magnitude;
+        return temp;
+    }
+
+    static sf::Vector2f normalize(sf::Vector2f vec , float magnitude=1.0f)
+    {
+        float length = getMagnitude(vec.x,vec.y,0);
+        sf::Vector2f temp;
+        temp.x = vec.x/length*magnitude;
+        temp.y = vec.y/length*magnitude;
         return temp;
     }
 
@@ -38,7 +47,7 @@ public:
 
     static float billboardAngle(sf::Vector2f v1, sf::Vector2f v2)
     {
-        return atan2(v1.x - v2.x,v1.y - -v2.y)*57.2957795;
+        return atan2(v1.x - v2.x,v1.y -v2.y)*57.2957795;
     }
 
     static float billboardAngle(sf::Vector3f v1, sf::Vector3f v2)

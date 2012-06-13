@@ -38,12 +38,14 @@ void GameState::Input(uint press, uint held, uint mpress, uint mheld, sf::Vector
         if ( press & KEY_U || held & KEY_U)
         {
             cout<<"Pressing Forward\n";
-			 clientPlayer->SetVelocity(sf::Vector2f(0,10));
+            sf::Vector2f direction = sf::Vector2f(cos((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)),sin((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)));
+            clientPlayer->SetVelocity(Utilities::normalize(direction, 10.f));
         }
 		else if ( press & KEY_D || held & KEY_D)
         {
-            cout<<"Pressing Backward\n";
-			 clientPlayer->SetVelocity(sf::Vector2f(0,-10));
+            cout<<"Pressing Forward\n";
+            sf::Vector2f direction = sf::Vector2f(cos((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)),sin((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)));
+            clientPlayer->SetVelocity(Utilities::normalize(direction, -10.f));
         }
 
         if ( press & KEY_L || held & KEY_L)
@@ -118,10 +120,12 @@ void GameState::Render(sf::RenderWindow * window)
         //Active Opponent Texture
         Player* temp = (Player*)entManager->GetPlayer("Test1");
         window->draw(sf::Sprite(temp->renderTexture.getTexture()));
-
-        sf::Text text("in game state");
+        sf::Text text;
+        char debugTXT[128];
+        sprintf(debugTXT,"Camera x:%.2f z:%.2f",activeCamera->position.x, activeCamera->position.z);
+        text.setString(debugTXT);
         text.setColor(sf::Color(255, 255, 255, 200));
-        text.setPosition(250.f, 450.f);
+        text.setPosition(20.f, 40.f);
         window->draw(text);
     window->popGLStates();
 }

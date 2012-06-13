@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "Networker.h"
 #include "Utilities.h"
+#include <cstdio>
 
 using namespace std;
 

@@ -16,7 +16,7 @@ Player::Player(string name, sf::Vector2f initialPosition, string spritePath, boo
     texture.loadFromFile(spritePath);
     sprite.setTexture(texture);
     sprite.setTextureRect(sf::IntRect(0,0,16,16));
-    renderTexture.create(16,16,true);
+    renderTexture.create(128,128,true);
     renderTexture.setSmooth(false);
 
     camera = new Camera();
@@ -31,7 +31,7 @@ Player::Player(string name, sf::Vector2f initialPosition, string spritePath, boo
 
     position.x = initialPosition.x;
     position.y = 0;
-    position.z = -initialPosition.y;
+    position.z = initialPosition.y;
     angleDeg = 0;
 
     camera->position = position;
@@ -63,7 +63,7 @@ void Player::Update(sf::Time elapsed)
         //TODO Animastion system
         if(rand()%100 < 10){
            int random = rand()%5;
-           sprite.setTextureRect(sf::IntRect(random*16,0,random*16+16,16));
+           sprite.setTextureRect(sf::IntRect(random*16,0,16,16));
         }
 
         //get Latest position from networker
@@ -88,7 +88,19 @@ void Player::Render(Camera* activeCamera)
                 glEnable (GL_BLEND);
                 renderTexture.clear(sf::Color::Transparent);
                 renderTexture.setSmooth(false);
+                sprite.setScale(8,8);
                 renderTexture.draw(sprite);
+#ifdef DEBUG
+                sf::Text debugTxt;
+                char debugTXT[128];
+                sprintf(debugTXT,"x:%.1f z:%.1f",position.x, position.z);
+                debugTxt.setString(playerName + debugTXT);
+                debugTxt.setColor(sf::Color(255, 0, 0, 255));
+                debugTxt.setPosition(0.f, 0.f);
+                debugTxt.setCharacterSize(18);
+                //debugTxt.setScale(0.1f,0.1f);
+                renderTexture.draw(debugTxt);
+#endif
                 renderTexture.display();
             renderTexture.setActive(false);
         activeCamera->activeWindow->setActive(true);
@@ -99,7 +111,7 @@ void Player::Render(Camera* activeCamera)
         glPushMatrix();
             //glLoadIdentity();
 
-            glTranslatef(position.x, 0, position.z);
+            glTranslatef(-position.x, 0, -position.z);
             //glRotatef(-activeCamera->angleDeg,0,1,0);   //holy fake billboarding -RL
             glRotatef(Utilities::billboardAngle(position,activeCamera->position),0,1,0);
 
