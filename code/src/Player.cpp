@@ -23,13 +23,15 @@ Player::Player(string name, sf::Vector2f initialPosition, string spritePath, boo
 
 
 
-    entityID = 0;
-    for (size_t i=0; i < name.length(); i++){entityID += (10 * i)+(int)name.at(i);}
-    entityID *= -1; //entityID's for players are negative
+    entityID = 1;
+    for (size_t i=0; i < name.length(); i++){
+        entityID +=name.at(i)*i;
+        }
+    entityID = sqrt(entityID*entityID)*-1;//entityID's for players are negative
 
     position.x = initialPosition.x;
     position.y = 0;
-    position.z = initialPosition.y;
+    position.z = -initialPosition.y;
     angleDeg = 0;
 
     camera->position = position;
@@ -59,10 +61,10 @@ void Player::Update(sf::Time elapsed)
     {
         //Temporarily jump to random frame on sprite sheet to make sure the RTT system works -RL
         //TODO Animastion system
-        //if(rand()%1000 < 10){
-         //   int random = rand()%3;
-         //   sprite.setTextureRect(sf::IntRect(random*16,0,random*16,16));
-        //}
+        if(rand()%100 < 10){
+           int random = rand()%5;
+           sprite.setTextureRect(sf::IntRect(random*16,0,random*16+16,16));
+        }
 
         //get Latest position from networker
     }
@@ -77,12 +79,7 @@ void Player::Render(Camera* activeCamera)
 
     if(!isClient)
     {
-        //Billboarding Vector Calculations (still fucked -RL)
-        sf::Vector3f lookat = activeCamera->position - position;
-        lookat.y = 0;
-        lookat = Utilities::normalize(lookat);
-        sf::Vector3f right = Utilities::cross(sf::Vector3f(0,1,0), lookat);
-        float lookatAngle = Utilities::dot(lookat, sf::Vector3f(0,0,-1));
+
 
         //Texture Render Target
         // This stuff breaks rendering in weird ways. Really buggy. Have to manually activate targets for some reason
@@ -97,19 +94,26 @@ void Player::Render(Camera* activeCamera)
         activeCamera->activeWindow->setActive(true);
 
 
+
         //Render Billboard
         glPushMatrix();
             //glLoadIdentity();
 
             glTranslatef(position.x, 0, position.z);
-            if ((lookatAngle < 0.99990) && (lookatAngle > -0.9999))
-                glRotatef(acos(lookatAngle)*180/3.14159265f,0,1,0);
+            //glRotatef(-activeCamera->angleDeg,0,1,0);   //holy fake billboarding -RL
+            glRotatef(Utilities::billboardAngle(position,activeCamera->position),0,1,0);
 
             float size = 0.5f;
             glEnable(GL_TEXTURE_2D);
             renderTexture.getTexture().bind(); //Binding RenderTarget
             glColor4f(1.f, 1.f, 1.f, 1.f);
             glBegin(GL_QUADS);
+                    /*
+                    glTexCoord2f(0, 1); glVertex3f(-size, -size, -size);
+                    glTexCoord2f(0, 0); glVertex3f(-size,  size, -size);
+                    glTexCoord2f(1, 0); glVertex3f( size,  size, -size);
+                    glTexCoord2f(1, 1); glVertex3f( size, -size, -size);
+                    */
                     glTexCoord2f(0, 1); glVertex3f(-size, -size, 0);
                     glTexCoord2f(0, 0); glVertex3f(-size,  size, 0);
                     glTexCoord2f(1, 0); glVertex3f( size,  size, 0);

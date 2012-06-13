@@ -26,6 +26,20 @@ public:
 
     ~Player();
 
+    enum VERBS
+    {
+        SHOOT,
+        PICKUP,
+        SPAWN,
+        DIE,
+        KILL,
+        LOSETAIL,
+        GAINTAIL,
+        JOIN,
+        LEAVE,
+        CHAT
+    };
+
 private:
     bool isClient;
 
