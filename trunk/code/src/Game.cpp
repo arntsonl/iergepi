@@ -17,10 +17,7 @@ Game::~Game()
 
 void Game::Init()
 {
-    IntroState * introState = new IntroState();
-    GameState * gameState = new GameState();
-    m_state = (State*)introState;
-    m_state->next(gameState);
+
     //m_statePool.push_back(m_state);
 
     keysDown = 0;
@@ -42,6 +39,25 @@ void Game::Init()
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(90.f, window->getSize().x/window->getSize().y, 0.1f, 500.f);
+
+    char num[8];
+    sprintf(num,"%d",rand()%9999);
+    playerName = "Player"+std::string(num);
+    net = new Networker(playerName);
+
+    if(!net->isConnected())
+    {
+        ShutDown();
+        return;
+    }
+
+    clientPlayer = new Player(playerName, sf::Vector2f(0,0),"resources/Charsheet.png",  true);
+
+    IntroState * introState = new IntroState();
+    GameState * gameState = new GameState(playerName, net, clientPlayer);
+    m_state = (State*)introState;
+    m_state->next(gameState);
+
 }
 
 void Game::Run()
@@ -267,6 +283,7 @@ void Game::Tick()
 // Take care of memory clean-ups, window handling, etc.
 void Game::ShutDown()
 {
+    net->Disconnect();
 	window->close();
 	m_quit = true;
 }

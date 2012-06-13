@@ -2,16 +2,20 @@
 #include <cstdio>
 
 
-GameState::GameState()
+GameState::GameState(std::string playerNam, Networker* ne, Player* clientPlaye)
 {
-    entManager = new EntityManager();
+    playerName = playerNam;
+    net = ne;
+    clientPlayer = clientPlaye;
 
+    entManager = new EntityManager();
+    net->SetupUpdater(clientPlayer, entManager);
     //Test Entities
-    entManager->AddPlayer("TestPlayer", new Player("TestPlayer", sf::Vector2f(0,0),"resources/Charsheet.png",  true));
+    entManager->AddPlayer(playerName, clientPlayer);
     entManager->AddPlayer("Test1", new Player("Test1", sf::Vector2f(4,4),"resources/Charsheet.png",  false));
-    entManager->AddPlayer("Test2", new Player("Test2", sf::Vector2f(4,-4),"resources/Charsheet.png",  false));
-    entManager->AddPlayer("Test3", new Player("Test3", sf::Vector2f(-4,4),"resources/Charsheet.png",  false));
-    entManager->AddPlayer("Test4", new Player("Test4", sf::Vector2f(-4,-4),"resources/Charsheet.png",  false));
+    //entManager->AddPlayer("Test2", new Player("Test2", sf::Vector2f(4,-4),"resources/Charsheet.png",  false));
+    //entManager->AddPlayer("Test3", new Player("Test3", sf::Vector2f(-4,4),"resources/Charsheet.png",  false));
+    //entManager->AddPlayer("Test4", new Player("Test4", sf::Vector2f(-4,-4),"resources/Charsheet.png",  false));
     //Filling up the space with random opponent entities
     //char tempName[64];
 
@@ -21,9 +25,8 @@ GameState::GameState()
     //}
 
 
-    clientPlayer = ((Player*)entManager->GetPlayer("TestPlayer"));
+    //clientPlayer = ((Player*)entManager->GetPlayer("TestPlayer"));
     activeCamera = clientPlayer->getCamera();
-
 }
 
 GameState::~GameState()
@@ -37,13 +40,11 @@ void GameState::Input(uint press, uint held, uint mpress, uint mheld, sf::Vector
     // Some temporary crap just moving forward/backwards, will need to put back in mouse angle based movement
         if ( press & KEY_U || held & KEY_U)
         {
-            cout<<"Pressing Forward\n";
             sf::Vector2f direction = sf::Vector2f(cos((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)),sin((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)));
             clientPlayer->SetVelocity(Utilities::normalize(direction, 10.f));
         }
 		else if ( press & KEY_D || held & KEY_D)
         {
-            cout<<"Pressing Forward\n";
             sf::Vector2f direction = sf::Vector2f(cos((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)),sin((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)));
             clientPlayer->SetVelocity(Utilities::normalize(direction, -10.f));
         }
@@ -60,6 +61,7 @@ void GameState::Input(uint press, uint held, uint mpress, uint mheld, sf::Vector
 
 uint GameState::Update(sf::Time elapsed)
 {
+    net->Update(elapsed);
     entManager->Update(elapsed);
     return STATE_IDLE;
 }
