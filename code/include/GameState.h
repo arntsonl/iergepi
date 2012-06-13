@@ -12,7 +12,7 @@
 class GameState : public State
 {
 public:
-    GameState();
+    GameState(std::string playerNam, Networker* ne, Player* clientPlaye);
     //{
     //    testPlayer = new Player("TestPlayer", sf::Vector2f(0,0),"resources/Charsheet.png",  false);
     //}
@@ -226,9 +226,13 @@ private:
     //sf::Texture m_bgTex;
     //sf::Sprite * m_bgSpr;
     EntityManager* entManager;
-    Player* clientPlayer;
 
     Camera* activeCamera;
+
+    //Passing it up from Game
+    std::string playerName;
+	Networker* net;
+	Player* clientPlayer;
 
     // angle of rotation for the camera direction
     //float angle;

@@ -17,10 +17,12 @@ public:
     void SetVelocity(sf::Vector2f velo){velocity = velo;};
     void SetAngle(float angle){angleDeg = angle;};
     void AddAngle(float angle){angleDeg += angle;};
+    float GetAngle(){return angleDeg;};
 
     Camera* getCamera(){return camera;};
 
     string getName(){return playerName;};
+    bool isAlive(){return alive;};
 
     sf::RenderTexture renderTexture;
     sf::Texture texture;
@@ -34,6 +36,7 @@ public:
         SPAWN,
         DIE,
         KILL,
+        GETHIT,
         LOSETAIL,
         GAINTAIL,
         JOIN,
@@ -43,6 +46,7 @@ public:
 
 private:
     bool isClient;
+    bool alive;
 
     string playerName;
     int score;
@@ -56,6 +60,7 @@ private:
     float frictionCoef;
 
     float angleDeg;
+
 
     //sf::Texture texture;
     sf::Sprite sprite;

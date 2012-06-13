@@ -11,6 +11,7 @@ Player::Player(string name, sf::Vector2f initialPosition, string spritePath, boo
     Entity();
 
     playerName = name;
+    alive = false;
 
     //Graphics Garbage
     texture.loadFromFile(spritePath);

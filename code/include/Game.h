@@ -9,6 +9,7 @@
 #include "GameState.h"
 #include "Global.h"
 #include "Player.h"
+#include "Networker.h"
 
 class State;
 class IntroState;
@@ -23,6 +24,9 @@ public:
 	~Game();
 	void Init(); // init everything needed for our game.
 	void Run();
+
+
+
 private:
 	void Update();
 	void GetInput(uint *); // get the keys
@@ -38,4 +42,8 @@ private:
 	sf::Time m_elapsedTime; // how much time has actually elapsed..
 	uint keysDown; // all keys currently down
 	uint mouseDown; // all mouse currently down
+
+	std::string playerName;
+	Networker* net;
+	Player* clientPlayer;
 };
