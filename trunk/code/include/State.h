@@ -30,7 +30,7 @@ public:
     std::string name(){return m_name;}
 
     // All corresponding states can use these
-    virtual void Input(uint press, uint held, uint mpress, uint mheld, sf::Vector2i mpos) = 0;
+    virtual void Input(uint press, uint held, uint mpress, uint mheld, sf::Vector2i mpos, sf::Vector2i mdiff) = 0;
     virtual uint Update(sf::Time) = 0; // do some updating
     virtual void Render(sf::RenderWindow *) = 0; // render things onto the screen
     virtual void Reset(sf::Vector2i) = 0; // this should happen at the beginning of a state change

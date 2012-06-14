@@ -18,6 +18,7 @@ const int SERVERMSG = 6;
 
 deque<string> log;
 sf::Clock timer;
+sf::Clock packetDelayer;
 bool dataChanged;
 
 //Networking Goods
@@ -36,6 +37,7 @@ bool dataChanged;
         sf::IpAddress IP;
         unsigned short port;
         bool isAlive;
+        bool isDirty;
         float x;
         float y;
         float z;
@@ -46,11 +48,13 @@ bool dataChanged;
     {
         sf::IpAddress IP;
         unsigned short port;
+        sf::Clock timeSinceUpdate;
     };
 
-    vector<Connection> connections;
-    map<std::string, bool> nameMap;
-    map<sf::IpAddress, map<unsigned int, PlayerNetData> > playerData;
+    //Organizational Data Structures
+    vector<std::string>                                     nameList;
+    map<std::string, Connection>                            nameMap;
+    map<sf::IpAddress, map<unsigned short, PlayerNetData> >   playerData;
 
 void ClearScreen(){
   HANDLE                     hStdOut;
@@ -122,13 +126,6 @@ printf(" @@       @@@@C    @   C     @    \n");
 printf(" @G               @    @     @@   \n");
 printf(" @ :             @@ ,G@      G@   \n");
 printf(" @C@:        ,@@@@@@@@@      @@   \n");
-printf("  @Ci@@    @@l              @.@   \n");
-printf("  @@   G@@@i   f@@f.     ;@@@@    \n");
-printf("   @@ @ @@  @@f  @ .L@@@@ @ @;    \n");
-printf("     @@@@.@@@@@@@@@@;    G@@      \n");
-printf("        @@@         :C@@C,        \n");
-printf("       .@                         \n");
-printf("       @                          \n");
 printf("=================================\n");
 printf("=|  D  E  T  H  S  N  4  K  E  |=\n");
 printf("=|                             |=\n");
@@ -155,9 +152,9 @@ void drawStaticLine()
 }
 
 void drawPlayerInfo(){
-    for(int i =0; i <connections.size(); i++)
+    for(int i =0; i <nameList.size(); i++)
     {
-        PlayerNetData p =  playerData[connections[i].IP][connections[i].port];
+        PlayerNetData p =  playerData[ nameMap[ nameList[i] ].IP][ nameMap[ nameList[i] ].port];
         cout<<p.playerName<<" "<< p.IP.toInteger() << " " << p.port << " " << ((p.isAlive)?"ALIVE":"DEAD") << " | x: " << p.x << " y: " << p.y << " z: " << p.z << " | angle: " << p.angle <<"\t\n";
     }
 }
@@ -174,6 +171,7 @@ int main(int argc, char * argv[])
 
     Log("Binding to Port 51515");
     udpSocket.bind(51515);
+    udpSocket.setBlocking(false);
 
 
     Log("Getting Public IP");
@@ -182,20 +180,19 @@ int main(int argc, char * argv[])
 
     while(1)
     {
-            numPlayers = connections.size();
 
-            //drawHeader();
+            numPlayers = nameList.size();
+
+            drawHeader();
             drawLog();
             drawStaticLine();
             drawPlayerInfo();
-            cout<<connections.size()<<endl;
 
 //RECEIVE
             sf::IpAddress recvPacketIP;
             unsigned short portPacket;
-            if(sf::Socket::Done == udpSocket.receive(recvPacket, recvPacketIP, portPacket))
+            if(sf::Socket::Done == udpSocket.receive(recvPacket, recvPacketIP, portPacket) && portPacket != 51515)
             {
-                Log("Receiving Packet from: "+recvPacketIP.toString()+"\n");
 
                 int pType;
                 recvPacket>>pType;
@@ -217,6 +214,7 @@ int main(int argc, char * argv[])
                                     temp.port = portPacket;
                                     temp.playerName = pName;
                                     temp.isAlive = false;
+                                    temp.isDirty = true;
                                     temp.x = 0;
                                     temp.y = -100;
                                     temp.z = 0;
@@ -224,12 +222,16 @@ int main(int argc, char * argv[])
 
                                     playerData[recvPacketIP][portPacket] = temp;
 
-                                    Connection t;
-                                    t.IP = recvPacketIP;
-                                    t.port = portPacket;
-                                    connections.push_back(t);
+                                   // Connection t;
+                                   // t.IP = recvPacketIP;
+                                   // t.port = portPacket;
+                                   // connections.push_back(t);
 
-                                    nameMap[pName] = true;
+                                    nameMap[pName].IP = recvPacketIP;
+                                    nameMap[pName].port = portPacket;
+                                    nameMap[pName].timeSinceUpdate.restart();
+
+                                    nameList.push_back(pName);
 
                                     //Confirm Connect
                                     sendPacket.clear();
@@ -265,17 +267,21 @@ int main(int argc, char * argv[])
                     >> playerData[recvPacketIP][portPacket].y
                     >> playerData[recvPacketIP][portPacket].z
                     >> playerData[recvPacketIP][portPacket].angle;
+                    playerData[recvPacketIP][portPacket].isDirty = true;
+
+                    nameMap[playerData[recvPacketIP][portPacket].playerName].timeSinceUpdate.restart();
+
                 }
                 else if(pType == DISCONNECT)
                 {
                     Log(playerData[recvPacketIP][portPacket].playerName + " Disconnecting...");
 
-                    vector<Connection>::iterator vItr = connections.begin();
-                    while ( vItr != connections.end() )
+                    vector<std::string>::iterator vItr = nameList.begin();
+                    while ( vItr != nameList.end() )
                     {
-                        if ( vItr->IP == recvPacketIP && vItr->port == portPacket  )
+                        if ( vItr->compare(playerData[recvPacketIP][portPacket].playerName)==0)
                         {
-                            vItr = connections.erase(vItr); // Will return next valid iterator
+                            vItr = nameList.erase(vItr); // Will return next valid iterator
                             break;
                         }
                         else
@@ -284,33 +290,76 @@ int main(int argc, char * argv[])
 
                     nameMap.erase(playerData[recvPacketIP][portPacket].playerName);
                     playerData[recvPacketIP].erase(portPacket);
-                    playerData.erase(recvPacketIP);
+                    if(playerData[recvPacketIP].empty()) playerData.erase(recvPacketIP);
+
+                    dataChanged = true;
                 }
             }
 
 //SEND
-            sendPacket.clear();
-            for(int i = 0; i < connections.size(); i++) //Add all connected players to Update Packet
+            if(packetDelayer.getElapsedTime().asMicroseconds() > 40000) // 25fps
             {
-                Connection c = connections[i];
-                PlayerNetData t = playerData[c.IP][c.port];
-
-                sendPacket
-                << PLAYER
-                << t.playerName
-                << t.x
-                << t.y
-                << t.z
-                << t.angle;
+                packetDelayer.restart();
+                sendPacket.clear();
+                for(int i = 0; i < nameList.size(); i++) //Add all connected players to Update Packet
+                {
+                    Connection c = nameMap[ nameList[i] ];
+                    PlayerNetData t = playerData[c.IP][c.port];
+                    if(t.isDirty)
+                    {
+                        sendPacket
+                        << PLAYER
+                        << t.playerName
+                        << t.x
+                        << t.y
+                        << t.z
+                        << t.angle;
+                        t.isDirty = false;
+                    }
+                }
+                if(sendPacket.getData()!=NULL)
+                {
+                    for(int i = 0; i < nameList.size(); i++) //now send to everyone
+                    {
+                        Connection c = nameMap[ nameList[i] ];
+                        udpSocket.send(sendPacket, c.IP, c.port);
+                    }
+                }
             }
-            for(int i = 0; i < connections.size(); i++) //now send to everyone
-            {
-                Connection c = connections[i];
-                udpSocket.send(sendPacket, c.IP, c.port);
-            }
-    }
+
+//Utilities
+
+            //Enforce Timeouts
+                std::string timedOut;
+                for(int i =0; i <nameList.size(); i++)
+                {
+                    if(nameMap[ nameList[i] ].timeSinceUpdate.getElapsedTime().asSeconds() > 5)
+                    {
+                        Log(nameList[i] + " Timed Out");
+                        timedOut = nameList[i];
+                    }
+                }
+
+                if(timedOut.length()>0)
+                {
+                    playerData[nameMap[timedOut].IP].erase(nameMap[timedOut].port);
+                    if(playerData[nameMap[timedOut].IP].empty()) playerData.erase(nameMap[timedOut].IP);
+                    nameMap.erase(timedOut);
 
 
+                    vector<std::string>::iterator vItr = nameList.begin();
+                    while ( vItr != nameList.end() )
+                    {
+                        if ( vItr->compare(timedOut)==0)
+                        {
+                            vItr = nameList.erase(vItr); // Will return next valid iterator
+                            break;
+                        }
+                        else
+                            vItr++;
+                    }
+                }
+    } // end while(1)
 return 0;
 }
 

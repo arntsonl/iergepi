@@ -27,6 +27,8 @@ GameState::GameState(std::string playerNam, Networker* ne, Player* clientPlaye)
 
     //clientPlayer = ((Player*)entManager->GetPlayer("TestPlayer"));
     activeCamera = clientPlayer->getCamera();
+
+    mouseSensitivity = 0.2f;    //play around with these. Should load this from a config file
 }
 
 GameState::~GameState()
@@ -34,29 +36,37 @@ GameState::~GameState()
 //TODO
 }
 
-void GameState::Input(uint press, uint held, uint mpress, uint mheld, sf::Vector2i mpos)
+void GameState::Input(uint press, uint held, uint mpress, uint mheld, sf::Vector2i mpos, sf::Vector2i mdiff)
 {
 
-    // Some temporary crap just moving forward/backwards, will need to put back in mouse angle based movement
+        //Keyboard SHYIT
+        sf::Vector2f direction = sf::Vector2f(cos((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)),sin((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)));
+        sf::Vector2f sideDirection = sf::Vector2f(cos((activeCamera->angleDeg)*(3.14159265358979323846/180.0)),sin((activeCamera->angleDeg)*(3.14159265358979323846/180.0)));
         if ( press & KEY_U || held & KEY_U)
         {
-            sf::Vector2f direction = sf::Vector2f(cos((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)),sin((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)));
-            clientPlayer->SetVelocity(Utilities::normalize(direction, 10.f));
+            clientPlayer->AddVelocity(Utilities::normalize(direction, 10.f));
         }
 		else if ( press & KEY_D || held & KEY_D)
         {
-            sf::Vector2f direction = sf::Vector2f(cos((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)),sin((activeCamera->angleDeg+90)*(3.14159265358979323846/180.0)));
-            clientPlayer->SetVelocity(Utilities::normalize(direction, -10.f));
+            clientPlayer->AddVelocity(Utilities::normalize(direction, -10.f));
         }
 
         if ( press & KEY_L || held & KEY_L)
         {
-            clientPlayer->AddAngle(-1.f);
+            //clientPlayer->AddAngle(-1.f);
+            clientPlayer->AddVelocity(Utilities::normalize(sideDirection, 10.f));
+
         }
 		else if ( press & KEY_R || held & KEY_R)
         {
-			clientPlayer->AddAngle(1.f);
+			//clientPlayer->AddAngle(1.f);
+			clientPlayer->AddVelocity(Utilities::normalize(sideDirection, -10.f));
         }
+
+        //MOUSE SHIT
+        clientPlayer->AddAngle(mdiff.x * mouseSensitivity);
+
+
 }
 
 uint GameState::Update(sf::Time elapsed)
@@ -68,6 +78,7 @@ uint GameState::Update(sf::Time elapsed)
 
 void GameState::Render(sf::RenderWindow * window)
 {
+    window->setMouseCursorVisible(false);
     activeCamera->activeWindow = window;
     window->setActive();
     //glPolygonMode(GL_FRONT, GL_LINE);
@@ -134,5 +145,5 @@ void GameState::Render(sf::RenderWindow * window)
 
 void GameState::Reset(sf::Vector2i mpos)
 {
-
+// dunno what we're resseting? passing mouse coordinates?
 }

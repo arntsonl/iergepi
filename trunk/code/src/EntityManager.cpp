@@ -38,6 +38,7 @@ void EntityManager::Render(Camera* activeCamera)
 //Players
 void EntityManager::AddPlayer(string name, Entity* player)
 {
+
     playerNames.insert(playerNames.begin(), name);
     players.insert(pair<std::string, Entity*>(name, player));
 
@@ -61,6 +62,14 @@ Entity* EntityManager::GetPlayer(std::string name)
 {
     return players[name];
 
+}
+
+bool EntityManager::HasPlayer(std::string name)
+{
+    for(vector<string>::iterator iter = playerNames.begin(); iter != playerNames.end(); iter++){
+        if(name.compare((*iter))==0) return true;
+    }
+    return false;
 }
 
 //Local Entities

@@ -23,7 +23,7 @@ public:
     }
 
     // All corresponding states can use these
-    void Input(uint press, uint held, uint mpress, uint mheld, sf::Vector2i mpos)
+    void Input(uint press, uint held, uint mpress, uint mheld, sf::Vector2i mpos, sf::Vector2i mdiff)
     {
         if ( press & KEY_U )
         {

@@ -3,6 +3,7 @@
 #include "Networker.h"
 #include "Utilities.h"
 #include <cstdio>
+#include <vector>
 
 using namespace std;
 
@@ -15,14 +16,19 @@ public:
     void Update(sf::Time elapsed);
     void Render(Camera* activeCamera);
     void SetVelocity(sf::Vector2f velo){velocity = velo;};
-    void SetAngle(float angle){angleDeg = angle;};
-    void AddAngle(float angle){angleDeg += angle;};
+    void AddVelocity(sf::Vector2f velo){velocity = velocity + velo; velocity = Utilities::normalize(velocity, 10.f);};
+    void SetAngle(float angle){angleDeg = angle; DIRTY=true;};
+    void AddAngle(float angle){angleDeg += angle; DIRTY=true;};
     float GetAngle(){return angleDeg;};
+
+    void SetNetworkedValues(sf::Vector3f pos, float ang){position = pos; angleDeg = ang;};
 
     Camera* getCamera(){return camera;};
 
     string getName(){return playerName;};
     bool isAlive(){return alive;};
+    bool isDirty(){return DIRTY;};
+    void setDirty(bool isit){DIRTY = false;};
 
     sf::RenderTexture renderTexture;
     sf::Texture texture;
@@ -47,6 +53,7 @@ public:
 private:
     bool isClient;
     bool alive;
+    bool DIRTY;
 
     string playerName;
     int score;
@@ -66,10 +73,18 @@ private:
     sf::Sprite sprite;
     //sf::RenderTexture renderTexture;
 
-    map<string, vector<sf::Vector2i> > animations;
-    void addAnimation(string, vector<sf::Vector2i>);
-    void removeAnimation(string);
+    struct animation
+    {
+        int currentFrame;   //count from 0
+        vector<sf::IntRect> frames;
+        sf::Time betweenFrames;
+    };
 
+    map<string, animation> animations;
+    void addAnimation(string, animation);
+    void removeAnimation(string);
+    std::string currentAnim;
+    sf::Clock animationTimer;
 
 };
 
