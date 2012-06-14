@@ -21,7 +21,7 @@ public:
     void AddPlayer(std::string name, Entity* player);
     void RemovePlayer(std::string name);
     Entity* GetPlayer(std::string name);
-
+    bool HasPlayer(std::string name);
 
     //Local Entities
     void AddEntity(Entity* entity);

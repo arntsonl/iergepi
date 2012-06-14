@@ -41,6 +41,7 @@ private:
     Player* clientPlayer;
     EntityManager* entManager;
 
+    sf::Clock timeSince;
     sf::Time timeSinceUpdate;
     bool connected;
 };

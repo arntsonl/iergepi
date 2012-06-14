@@ -40,9 +40,13 @@ void Game::Init()
     glLoadIdentity();
     gluPerspective(90.f, window->getSize().x/window->getSize().y, 0.1f, 500.f);
 
+    hasFocus = true;
+
     char num[8];
     sprintf(num,"%d",rand()%9999);
     playerName = "Player"+std::string(num);
+    //playerName="Rob Lach";
+
     net = new Networker(playerName);
 
     if(!net->isConnected())
@@ -65,7 +69,7 @@ void Game::Run()
 	while(m_quit == false)
 	{
 		Update();
-		Render();
+		if(m_quit == false)	Render(); //no need to render if we're quiting;
 		Tick();
 	}
 }
@@ -83,6 +87,8 @@ void Game::Update()
 
     sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
 
+    sf::Vector2i mouseDiff = sf::Vector2i(mousePos.x - window->getSize().x/2, mousePos.y - window->getSize().y/2);
+
     // Reset our timing clock
     clock.restart();
 
@@ -95,6 +101,16 @@ void Game::Update()
 		{
 			ShutDown();
 			return;
+		}
+
+		if(event.type == sf::Event::GainedFocus )
+		{
+		    hasFocus = true;
+		}
+
+		if(event.type == sf::Event::LostFocus)
+		{
+		    hasFocus = false;
 		}
 
 		// Escape key : exit
@@ -161,7 +177,10 @@ void Game::Update()
     keysHeld = keysDown & ~keysPressed;
     keysDown = keysTmp | keysDown;
 
-    m_state->Input(keysPressed, keysHeld, mousePressed, mouseHeld, mousePos);
+    //Center Mouse
+    if(hasFocus) sf::Mouse::setPosition(sf::Vector2i(window->getSize().x/2, window->getSize().y/2), *window);
+
+    m_state->Input(keysPressed, keysHeld, mousePressed, mouseHeld, mousePos, mouseDiff);
 	ret = m_state->Update(m_elapsedTime);
 	switch(ret)
 	{
@@ -180,6 +199,8 @@ void Game::Update()
 	    default:
             break;
 	}
+
+
 }
 
 // Render everything in the game using SFML

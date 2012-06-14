@@ -42,6 +42,7 @@ private:
 	sf::Time m_elapsedTime; // how much time has actually elapsed..
 	uint keysDown; // all keys currently down
 	uint mouseDown; // all mouse currently down
+	bool hasFocus;  //check if window has focus
 
 	std::string playerName;
 	Networker* net;
