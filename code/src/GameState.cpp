@@ -24,6 +24,7 @@ GameState::GameState(std::string playerNam, Networker* ne, Player* clientPlaye)
     //    entManager->AddPlayer(tempName, new Player(tempName, sf::Vector2f(rand()%20-10,rand()%20-10),"resources/Charsheet.png",  false));
     //}
 
+    level = new Level("resources/level2.lvl", "resources/textures.png");
 
     //clientPlayer = ((Player*)entManager->GetPlayer("TestPlayer"));
     activeCamera = clientPlayer->getCamera();
@@ -63,6 +64,11 @@ void GameState::Input(uint press, uint held, uint mpress, uint mheld, sf::Vector
 			clientPlayer->AddVelocity(Utilities::normalize(sideDirection, -10.f));
         }
 
+        if( press & KEY_SPACE || held & KEY_SPACE)
+        {
+            clientPlayer->Jump();
+        }
+
         //MOUSE SHIT
         clientPlayer->AddAngle(mdiff.x * mouseSensitivity);
 
@@ -97,7 +103,7 @@ void GameState::Render(sf::RenderWindow * window)
     //gluLookAt(cameraPos.x,cameraPos.y,cameraPos.z, cameraAngle.x, cameraAngle.y, cameraAngle.z, 0,1,0);
 
     glRotatef(activeCamera->angleDeg,0,1,0);
-    glTranslatef(cameraPos.x, cameraPos.y, cameraPos.z);
+    glTranslatef(cameraPos.x, cameraPos.y+0.25, cameraPos.z);
 
 
     //DRAW SKYBOX
@@ -112,14 +118,15 @@ void GameState::Render(sf::RenderWindow * window)
     //Temporary Floor
     //window->pushGLStates();
         //glTranslatef(0,-1,0);
-        glDisable(GL_TEXTURE_2D);
-        glColor3f(0.5f, 0.5f, 0.5f);
-        glBegin(GL_QUADS);
-            glVertex3f(-50.0f, -1.0f, -50.0f);
-            glVertex3f(-50.0f, -1.0f,  50.0f);
-            glVertex3f( 50.0f, -1.0f,  50.0f);
-            glVertex3f( 50.0f, -1.0f, -50.0f);
-        glEnd();
+        //glDisable(GL_TEXTURE_2D);
+        //glColor3f(0.5f, 0.5f, 0.5f);
+        //glBegin(GL_QUADS);
+        //    glVertex3f(-50.0f, -1.0f, -50.0f);
+        //    glVertex3f(-50.0f, -1.0f,  50.0f);
+        //    glVertex3f( 50.0f, -1.0f,  50.0f);
+        //    glVertex3f( 50.0f, -1.0f, -50.0f);
+        //glEnd();
+    level->Render(activeCamera);
     //window->popGLStates();
 
     //DRAW ENTITIES

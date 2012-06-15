@@ -7,6 +7,7 @@
 #include "Utilities.h"
 #include "EntityManager.h"
 #include "Player.h"
+#include "Level.h"
 
 
 class GameState : public State
@@ -31,4 +32,5 @@ private:
 	Networker* net;
 	Player* clientPlayer;
 	float mouseSensitivity;
+	Level* level;
 };

@@ -297,7 +297,7 @@ int main(int argc, char * argv[])
             }
 
 //SEND
-            if(packetDelayer.getElapsedTime().asMicroseconds() > 40000) // 25fps
+            if(packetDelayer.getElapsedTime().asMicroseconds() > 66666) // 25fps
             {
                 packetDelayer.restart();
                 sendPacket.clear();

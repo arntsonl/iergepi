@@ -15,10 +15,23 @@ public:
 
     void Update(sf::Time elapsed);
     void Render(Camera* activeCamera);
-    void SetVelocity(sf::Vector2f velo){velocity = velo;};
-    void AddVelocity(sf::Vector2f velo){velocity = velocity + velo; velocity = Utilities::normalize(velocity, 10.f);};
-    void SetAngle(float angle){angleDeg = angle; DIRTY=true;};
-    void AddAngle(float angle){angleDeg += angle; DIRTY=true;};
+    void SetVelocity(sf::Vector2f velo){
+        velocity = velo;
+        };
+    void AddVelocity(sf::Vector2f velo){
+            velocity = velocity + ((position.y == 0) ? Utilities::normalize(velo, 10.f):Utilities::normalize(velo, 0.25f));
+            if(position.y == 0) velocity = Utilities::normalize(velocity, 10.f);
+        };
+    void SetAngle(float angle){
+        angleDeg = angle;
+        DIRTY=true;
+        };
+    void AddAngle(float angle){
+            angleDeg += position.y == 0?angle:angle/2;
+            DIRTY=true;
+        };
+    void Jump();
+
     float GetAngle(){return angleDeg;};
 
     void SetNetworkedValues(sf::Vector3f pos, float ang){position = pos; angleDeg = ang;};
@@ -65,7 +78,7 @@ private:
 
     sf::Vector2f velocity;
     float frictionCoef;
-
+    float jumpVelocity;
     float angleDeg;
 
 
