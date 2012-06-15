@@ -1,8 +1,4 @@
 #pragma once
-//
-//    Made by Rob "Mr. Amazing" Lach
-//    6*9*12
-//
 
 #include <SFML/Graphics.hpp>
 #include "Global.h"

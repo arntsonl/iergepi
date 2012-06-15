@@ -139,6 +139,11 @@ void Game::Update()
 		    {
                 keysTmp |= KEY_R;
 		    }
+
+		    if( event.key.code == sf::Keyboard::Space)
+		    {
+		        keysTmp |= KEY_SPACE;
+		    }
 		}
 
         // Removed released keys
@@ -159,6 +164,11 @@ void Game::Update()
 		    else if ( event.key.code == sf::Keyboard::D )
 		    {
                 keysDown = keysDown & ~KEY_R;
+		    }
+
+		    if( event.key.code == sf::Keyboard::Space)
+		    {
+		        keysDown = keysDown & ~KEY_SPACE;
 		    }
 		}
 
@@ -233,7 +243,15 @@ void Game::Render()
 	glEnable(GL_ALPHA_TEST);
 
 
+    glEnable (GL_FOG);
+    glFogi(GL_FOG_MODE, GL_EXP);
+    GLfloat fogColor[4] = {248.0/255.0, 56.0/255.0, 0, 1.0};
+    glFogfv(GL_FOG_COLOR, fogColor);
+    glFogf(GL_FOG_DENSITY, GLfloat(0.03));
+    glHint(GL_FOG_HINT, GL_NICEST);
+    glFogf (GL_FOG_START, 0);
 
+    glFogf (GL_FOG_END, 300);
 
     m_state->Render(window);
 
@@ -242,50 +260,6 @@ void Game::Render()
 	float x =  sf::Mouse::getPosition(*window).x * 200.f / window->getSize().x - 100.f;
 	float y = -sf::Mouse::getPosition(*window).y * 200.f / window->getSize().y + 100.f;
 
-
-	// Apply some transformations
-//	glMatrixMode(GL_MODELVIEW);
-//	glLoadIdentity();
-//	glTranslatef(x, y, -100.f);
-//	glRotatef(50.f, 1.f, 0.f, 0.f);
-//	glRotatef(30.f, 0.f, 1.f, 0.f);
-//	glRotatef(90.f, 0.f, 0.f, 1.f);
-/*
-	// Draw a cube
-	float size = 20.f;
-	glBegin(GL_QUADS);
-		glColor3ub(255,0,255); glVertex3f(-size, -size, -size);
-		glColor3ub(255,0,255); glVertex3f(-size,  size, -size);
-		glColor3ub(255,0,255); glVertex3f( size,  size, -size);
-		glColor3ub(255,0,255); glVertex3f( size, -size, -size);
-
-		glColor3ub(0,255,255); glVertex3f(-size, -size, size);
-		glColor3ub(0,255,255); glVertex3f(-size,  size, size);
-		glColor3ub(0,255,255); glVertex3f( size,  size, size);
-		glColor3ub(0,255,255); glVertex3f( size, -size, size);
-
-		glColor3ub(255,255,0); glVertex3f(-size, -size, -size);
-		glColor3ub(255,255,0); glVertex3f(-size,  size, -size);
-		glColor3ub(255,255,0); glVertex3f(-size,  size,  size);
-		glColor3ub(255,255,0); glVertex3f(-size, -size,  size);
-
-		glColor3ub(0,0,255); glVertex3f(size, -size, -size);
-		glColor3ub(0,0,255); glVertex3f(size,  size, -size);
-		glColor3ub(0,0,255); glVertex3f(size,  size,  size);
-		glColor3ub(0,0,255); glVertex3f(size, -size,  size);
-
-		glColor3ub(255,0,0); glVertex3f(-size, -size,  size);
-		glColor3ub(255,0,0); glVertex3f(-size, -size, -size);
-		glColor3ub(255,0,0); glVertex3f( size, -size, -size);
-		glColor3ub(255,0,0); glVertex3f( size, -size,  size);
-
-		glColor3ub(0,255,0); glVertex3f(-size, size,  size);
-		glColor3ub(0,255,0); glVertex3f(-size, size, -size);
-		glColor3ub(0,255,0); glVertex3f( size, size, -size);
-		glColor3ub(0,255,0); glVertex3f( size, size,  size);
-
-	glEnd();
-*/
 	// Finally, display the rendered frame on screen
 	window->display();
 }

@@ -84,6 +84,14 @@ Player::Player(string name, sf::Vector2f initialPosition, string spritePath, boo
     frictionCoef = 8.0f;
 }
 
+void Player::Jump()
+{
+    if(position.y == 0){
+        jumpVelocity = 0.16;
+        velocity *= 1.5f;
+    }
+}
+
 void Player::Update(sf::Time elapsed)
 {
     Entity::Update(elapsed);
@@ -95,9 +103,16 @@ void Player::Update(sf::Time elapsed)
         position.x += velocity.x * elapsed.asSeconds();
         position.z += velocity.y * elapsed.asSeconds();
 
-        velocity -= (frictionCoef*velocity) * elapsed.asSeconds();
+        if(position.y == 0) velocity -= (frictionCoef*velocity) * elapsed.asSeconds();
         if(sqrt(velocity.x*velocity.x + velocity.y * velocity.y)<0.2f) velocity = sf::Vector2f(0,0);
+        if(Utilities::getMagnitude(velocity.x, velocity.y, 0)> 15.0f) velocity = Utilities::normalize(velocity, 15.0f);
 
+        position.y -= jumpVelocity;
+        if(position.y >0) position.y = 0;
+        if(position.y < 0)
+        {
+            jumpVelocity -= 0.75 * elapsed.asSeconds();
+        }
         //add latest to networker;
     }
     else
@@ -197,16 +212,10 @@ void Player::Render(Camera* activeCamera)
             renderTexture.getTexture().bind(); //Binding RenderTarget
             glColor4f(1.f, 1.f, 1.f, 1.f);
             glBegin(GL_QUADS);
-                    /*
-                    glTexCoord2f(0, 1); glVertex3f(-size, -size, -size);
-                    glTexCoord2f(0, 0); glVertex3f(-size,  size, -size);
-                    glTexCoord2f(1, 0); glVertex3f( size,  size, -size);
-                    glTexCoord2f(1, 1); glVertex3f( size, -size, -size);
-                    */
-                    glTexCoord2f(0, 1); glVertex3f(-size, -size, 0);
-                    glTexCoord2f(0, 0); glVertex3f(-size,  size, 0);
-                    glTexCoord2f(1, 0); glVertex3f( size,  size, 0);
-                    glTexCoord2f(1, 1); glVertex3f( size, -size, 0);
+                    glTexCoord2f(0, 1); glVertex3f(-size, -size-0.5, 0);
+                    glTexCoord2f(0, 0); glVertex3f(-size,  size-0.5, 0);
+                    glTexCoord2f(1, 0); glVertex3f( size,  size-0.5, 0);
+                    glTexCoord2f(1, 1); glVertex3f( size, -size-0.5, 0);
             glEnd();
 
         glPopMatrix();

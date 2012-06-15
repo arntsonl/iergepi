@@ -9,7 +9,7 @@ Networker::Networker(std::string playerName){
     serverIP = sf::IpAddress("184.82.23.104");
     //serverIP = sf::IpAddress("127.0.0.1");
     socket.bind(clientPort);
-    //socket.setBlocking(true); //Blocking for now (at least on connect) -RL
+    socket.setBlocking(true);
 
     timeSince.restart();
     clientIP = sf::IpAddress::getPublicAddress();
@@ -97,7 +97,7 @@ void Networker::Update(sf::Time elapsed)
     }
 
     //Build Player Update to Send to Server
-    if((clientPlayer->isDirty() && timeSince.getElapsedTime().asMicroseconds()>40000) || timeSince.getElapsedTime().asSeconds() > 2.5f)
+    if((clientPlayer->isDirty() && timeSince.getElapsedTime().asMicroseconds()>66666) || timeSince.getElapsedTime().asSeconds() > 2.5f)
     {
         clientPlayer->setDirty(false);
         sendPacket.clear();

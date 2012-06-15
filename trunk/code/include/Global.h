@@ -13,8 +13,7 @@
 #define KEY_5 256
 #define KEY_6 512
 #define KEY_7 1024
-#define KEY_8 2048
-
+#define KEY_SPACE 2048
 // For our mouse inputs
 #define MOUSE_1 1
 #define MOUSE_2 2
